@@ -1,11 +1,16 @@
 FROM node:18 AS build
 
+# Install Angular CLI globally
+RUN npm install -g @angular/cli@15
+
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
+
 COPY . .
-RUN npm run build --prod
+
+RUN ng build --configuration production
 
 FROM nginx:alpine
-COPY /dist/* /usr/share/nginx/html
+COPY --from=build /app/dist/* /usr/share/nginx/html
 EXPOSE 80
